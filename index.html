@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SEIZUMA — Beatboxer</title>
+<meta name="description" content="Seizuma, beatboxer français. Battles, wildcards, vidéos et projets web autour du beatbox.">
+<meta property="og:title" content="SEIZUMA — Beatboxer">
+<meta property="og:description" content="Battles, wildcards, vidéos et projets web autour du beatbox.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://seizuma.com">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,600;9..144,900&family=Instrument+Sans:wght@400;500&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header>
+  <div class="logo" id="logo"><b>SZM</b> · SEIZUMA</div>
+  <nav>
+    <a href="#battles">Battles</a>
+    <a href="#videos">Vidéos</a>
+    <a href="#projets">Projets</a>
+    <a href="#contact">Contact</a>
+  </nav>
+  <!-- Le compteur n'apparaît qu'après la découverte du premier secret -->
+  <div class="eggs" id="eggs" hidden title="Il y en a seize. Évidemment.">◆ 0/16</div>
+</header>
+
+<section class="hero">
+  <div class="surtitre">Beatboxer · France</div>
+  <h1 id="titre">SEIZUMA</h1>
+  <p>Beatboxer et compétiteur français. Des battles, des wildcards,
+     des vidéos, et des sites web construits pour la communauté beatbox.</p>
+  <div class="wave" id="bigwave" aria-hidden="true"></div>
+</section>
+
+<main class="tracklist">
+
+  <article class="track" id="battles">
+    <div class="no" data-ordre="1">TR·01</div>
+    <div>
+      <h2>Battles &amp; palmarès</h2>
+      <p>Les scènes, les moments, les résultats.</p>
+      <ul>
+        <!-- TODO : remplacer les # par les liens vers les vidéos des battles -->
+        <li><a href="#"><span class="mini-wave" aria-hidden="true"></span>One One Battle International 2026 — Solo</a><span>2e place</span></li>
+        <li><a href="#"><span class="mini-wave" aria-hidden="true"></span>Championnat de France 2025 — Solo</a><span>Top 4</span></li>
+        <li><a href="#"><span class="mini-wave" aria-hidden="true"></span>1up Beatbox Battle 2 — Solo</a><span>Top 4</span></li>
+        <li><a href="#"><span class="mini-wave" aria-hidden="true"></span>French Beatbox House Double Strike 2024</a><span>Top 8</span></li>
+      </ul>
+    </div>
+    <div class="duree">04:12</div>
+  </article>
+
+  <article class="track" id="videos">
+    <div class="no" data-ordre="2">TR·02</div>
+    <div>
+      <h2>Wildcards &amp; vidéos</h2>
+      <p>Les wildcards envoyées en compétition et les vidéos postées sur Instagram.</p>
+      <ul>
+        <!-- TODO : remplacer par tes vraies wildcards (titre + année + lien) -->
+        <li><a href="#"><span class="mini-wave" aria-hidden="true"></span>Wildcard — Championnat de France 2025</a><span>regarder ↗</span></li>
+        <li><a href="#"><span class="mini-wave" aria-hidden="true"></span>Wildcard — One One Battle 2026</a><span>regarder ↗</span></li>
+        <!-- TODO : remplacer par ton vrai handle Instagram -->
+        <li><a href="https://instagram.com/VOTRE_HANDLE" rel="noopener"><span class="mini-wave" aria-hidden="true"></span>Toutes les vidéos — Instagram</a><span>@seizuma ↗</span></li>
+      </ul>
+    </div>
+    <div class="duree">01:00</div>
+  </article>
+
+  <article class="track" id="projets">
+    <div class="no" data-ordre="3">TR·03</div>
+    <div>
+      <h2>Projets web</h2>
+      <p>Des plateformes construites pour la communauté beatbox.</p>
+      <ul>
+        <li><a href="https://beatboxgames.com" rel="noopener"><span class="mini-wave" aria-hidden="true"></span>BeatBox Games — blind test multijoueur</a><span>beatboxgames.com ↗</span></li>
+        <li><a href="https://beatboxpredictions.com" rel="noopener"><span class="mini-wave" aria-hidden="true"></span>BeatBox Predictions — pronostics de battles</a><span>beatboxpredictions.com ↗</span></li>
+      </ul>
+    </div>
+    <div class="duree" id="infini">∞</div>
+  </article>
+
+  <article class="track" id="contact">
+    <div class="no" data-ordre="4">TR·04</div>
+    <div>
+      <h2>Contact / booking</h2>
+      <p>Battles, shows, collaborations, jury —
+        <!-- TODO : remplacer par ton vrai email -->
+        <a href="mailto:booking@seizuma.com">booking@seizuma.com</a>
+      </p>
+    </div>
+    <div class="duree" id="duree16">0:16</div>
+  </article>
+
+</main>
+
+<footer>
+  <span>SEIZUMA<span class="r" id="rmark">©</span> 2026 — <span id="face">face A</span></span>
+  <span class="dim">fait main, comme les sons</span>
+</footer>
+
+<!-- ============ Couches easter eggs (invisibles par défaut) ============ -->
+<div class="toast" id="toast" role="status"></div>
+<div class="flash" id="flash" aria-hidden="true">SHOUTOUT !</div>
+
+<div class="terminal" id="terminal" hidden role="dialog" aria-label="SEIZUMA//OS">
+  <div class="term-inner">
+    <div class="term-statut">
+      <span>● SEIZUMA//OS v1.6</span>
+      <span class="term-dim">TTY0 · BOUCHE-VERS-MACHINE</span>
+      <button class="term-close" id="termClose" aria-label="Fermer le terminal">[ESC]</button>
+    </div>
+    <div class="term-ecran" id="termEcran" aria-live="polite"></div>
+    <div class="term-prompt">
+      <span>seizuma@battle:~$</span>
+      <input id="termInput" type="text" autocomplete="off" spellcheck="false" aria-label="Ligne de commande">
+    </div>
+  </div>
+</div>
+
+<script src="js/main.js"></script>
+</body>
+</html>
