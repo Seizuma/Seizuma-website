@@ -1,0 +1,19 @@
+services:
+  seizuma-web:
+    image: nginx:alpine
+    container_name: seizuma-web
+    restart: unless-stopped
+    volumes:
+      # le repo git cloné, monté en lecture seule
+      - ./site:/usr/share/nginx/html:ro
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    networks:
+      - npm
+    # Aucun port publié : seul NPM peut l'atteindre, via le réseau Docker.
+
+networks:
+  npm:
+    external: true
+    # ⚠ remplace par le nom réel du réseau de Nginx Proxy Manager
+    # (docker network ls) — souvent nginxproxymanager_default ou npm_default
+    name: nginxproxymanager_default
