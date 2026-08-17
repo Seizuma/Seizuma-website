@@ -1,123 +1,180 @@
 # seizuma.com
 
-Site vitrine de Seizuma — beatboxer français.
-Site 100 % statique : HTML + CSS + JS vanilla, aucun build, aucune dépendance.
+Site vitrine de **Seizuma** — beatboxer français.
+Site 100 % statique : HTML + CSS + JS vanilla. Aucun build, aucune dépendance,
+aucun framework. Servi par un conteneur nginx derrière Nginx Proxy Manager.
+
+## Architecture
 
 ```
 seizuma.com/
-├── index.html
-├── css/style.css
-└── js/main.js
+├── public/                 ← SEUL dossier exposé au web
+│   ├── index.html          page principale
+│   ├── 404.html            page d'erreur (contient le 17e secret)
+│   ├── css/
+│   │   └── style.css       esthétique « waveform éditorial »
+│   └── js/
+│       └── main.js         sons WebAudio, 16 secrets, terminal caché
+├── docker-compose.yml      conteneur nginx:alpine, réseau NPM
+├── nginx.conf              config du conteneur (cache, gzip, 404)
+├── deploy.sh               mise à jour depuis GitHub
+├── .gitignore
+└── README.md
 ```
 
-## ⚠ Avant de pousser sur GitHub
+Tout ce qui est hors de `public/` est invisible depuis le web : la config et
+le dossier `.git` ne sont jamais montés dans le conteneur.
+
+### Chaîne de service
+
+```
+Visiteur → :443 → Nginx Proxy Manager → seizuma-web:80 → /public
+              (SSL, routage domaine)      (fichiers statiques)
+```
+
+Deux nginx, deux rôles distincts : NPM gère le TLS et le routage des domaines,
+le conteneur `seizuma-web` lit les fichiers sur disque. Ils ne font pas doublon.
+
+---
+
+## Déploiement
+
+### 1. DNS (OVH)
+
+Supprimer les enregistrements de parking OVH et pointer vers le VPS :
+
+| Sous-domaine | Type | Cible |
+|---|---|---|
+| `@` | A | `IP_DU_VPS` |
+| `www` | A | `IP_DU_VPS` |
+
+À supprimer : les A vers `213.186.33.5` et `37.59.96.45`, les TXT
+`"1|www.seizuma.com"` et `"3|welcome"`, le CNAME `ftp`.
+À conserver : les `NS`, les `MX` et le `SPF` (messagerie OVH).
+
+Vérifier avant d'aller plus loin :
+
+```bash
+dig +short seizuma.com A
+dig +short www.seizuma.com A
+```
+
+Les deux doivent renvoyer **uniquement** l'IP du VPS. Ne pas demander de
+certificat SSL tant que ce n'est pas le cas (Let's Encrypt limite à
+5 échecs par heure).
+
+### 2. Conteneur (sur le VPS)
+
+```bash
+git clone git@github.com:USER/seizuma.com.git /opt/seizuma
+cd /opt/seizuma
+
+docker network ls              # relever le nom du réseau de NPM
+nano docker-compose.yml        # corriger la ligne "name:" en conséquence
+
+chmod +x deploy.sh
+docker compose up -d
+docker ps | grep seizuma-web   # doit afficher "Up"
+```
+
+Test avant même de toucher à NPM :
+
+```bash
+docker exec seizuma-web wget -qO- http://localhost/ | head -5
+```
+
+Le conteneur ne publie aucun port : il n'est joignable que par NPM via le
+réseau Docker interne.
+
+### 3. Proxy Host (NPM)
+
+**Details**
+- Domain Names : `seizuma.com`, `www.seizuma.com`
+- Scheme : `http`
+- Forward Hostname / IP : `seizuma-web` *(le nom du conteneur, pas une IP)*
+- Forward Port : `80`
+- Block Common Exploits : ✅
+
+**SSL** *(uniquement une fois le DNS propagé)*
+- Request a new SSL Certificate
+- Force SSL ✅ · HTTP/2 ✅ · HSTS ✅
+
+### 4. Mises à jour
+
+```bash
+/opt/seizuma/deploy.sh
+```
+
+Le script fait un `git reset --hard` sur la branche courante puis recharge
+nginx. Il écrase toute modification faite directement sur le VPS — c'est
+volontaire : le serveur reflète exactement le repo.
+
+---
+
+## ⚠ Repo public ou privé ?
 
 Tout le site est côté client : **si le repo est public, les 16 secrets sont
-lisibles dans `js/main.js`** (et dans ce README). Deux options :
+lisibles dans `public/js/main.js`** et dans ce README.
 
-1. **Repo privé** — le plus simple.
-2. **Repo public assumé** — lire le code source devient une façon légitime de
-   trouver les secrets (c'est une tradition du genre). Dans ce cas, supprime
-   la liste ci-dessous de ce README avant de pousser.
+- **Repo privé** → le plus simple.
+- **Repo public assumé** → lire le code source devient une façon légitime de
+  trouver les secrets (c'est une tradition du genre). Dans ce cas, **supprime
+  la section ci-dessous avant de pousser**.
 
-## Les 16 secrets (solution — à ne pas divulguer)
+## Les 16 secrets (solution)
 
-Aucun n'est signalé sur la page. Le compteur `◆ x/16` n'apparaît dans le
-header qu'à partir du premier secret trouvé. La progression est sauvegardée
-en `localStorage` (clé `szm_secrets`).
+Aucun n'est signalé sur la page. Le compteur `◆ x/16` du header reste masqué
+jusqu'à la première découverte. Progression stockée en `localStorage`
+(clé `szm_secrets`).
 
-| #  | Secret | Déclencheur |
-|----|--------|-------------|
-| 01 | La waveform est vivante | Cliquer la grande waveform (joue un kick) |
-| 02 | Le kit complet | Taper `B` (kick), `T` (hi-hat) et `K` (snare) |
-| 03 | Seize | Taper `seiz` au clavier |
-| 04 | Shoutout | Code Konami (↑↑↓↓←→←→BA) |
-| 05 | Le © | Cliquer le © du footer |
-| 06 | Seize clics | Cliquer 16 fois le logo `SZM` |
-| 07 | Les pistes dans l'ordre | Cliquer `TR·01` → `TR·04` dans l'ordre |
-| 08 | L'infini | Cliquer le `∞` (durée de TR·03) |
-| 09 | 0:16 | Cliquer la durée `0:16` (TR·04) |
-| 10 | Entre les lignes | Ouvrir `seizuma.com/#seize` |
-| 11 | Face B | Cliquer `face A` dans le footer (le thème s'inverse) |
-| 12 | Deux faces | Double-cliquer le titre `SEIZUMA` |
-| 13 | SEIZUMA//OS | Taper `sudo` n'importe où → ouvre le terminal caché |
-| 14 | sudo battle | Dans le terminal : `sudo battle` |
-| 15 | whoami | Dans le terminal : `whoami` |
-| 16 | Le mot de la fin | Dans le terminal : `seize` (ou `16`) |
+| #  | Déclencheur |
+|----|-------------|
+| 01 | Cliquer la grande waveform |
+| 02 | Taper `B`, `T` et `K` (kick, hi-hat, snare) |
+| 03 | Taper `seiz` |
+| 04 | Code Konami (↑↑↓↓←→←→BA) |
+| 05 | Cliquer le `©` du footer |
+| 06 | Cliquer 16 fois le logo `SZM` |
+| 07 | Cliquer `TR·01` → `TR·04` dans l'ordre |
+| 08 | Cliquer le `∞` (durée de TR·03) |
+| 09 | Cliquer la durée `0:16` (TR·04) |
+| 10 | Ouvrir `seizuma.com/#seize` |
+| 11 | Cliquer `face A` dans le footer → thème inversé |
+| 12 | Double-cliquer le titre `SEIZUMA` |
+| 13 | Taper `sudo` → ouvre le terminal SEIZUMA//OS |
+| 14 | Terminal : `sudo battle` |
+| 15 | Terminal : `whoami` |
+| 16 | Terminal : `seize` (ou `16`) |
+| 17 | *(hors compteur)* Sur la page 404 : cliquer 4 fois `—:—` |
 
 Trouver les 16 déclenche un final « SEIZE / SEIZE ».
 
-**Accès au terminal** : uniquement en tapant `sudo` (hors champ de saisie).
-Aucun bouton ni lien ne l'ouvre — impossible de tomber dessus par hasard.
-Un indice discret est affiché dans la console développeur pour les curieux.
-Fermeture : `Échap`, `exit` ou le bouton `[ESC]`.
+**Terminal caché** : accessible uniquement en tapant `sudo` hors d'un champ de
+saisie. Aucun bouton ni lien ne l'ouvre — impossible d'y tomber par hasard.
+Un indice discret est laissé dans la console développeur. Fermeture : `Échap`,
+`exit`, ou le bouton `[ESC]`.
 
-Note : les secrets 08 et 09 reposent sur la colonne « durée », masquée sur
-mobile (< 720 px). Si tu veux qu'ils soient trouvables sur téléphone,
-réaffiche `.duree` en petit plutôt que `display:none`.
+Les secrets 08 et 09 reposent sur la colonne « durée », masquée sous 720 px.
+Pour les rendre trouvables sur mobile, réafficher `.duree` en petit plutôt que
+`display:none` dans `style.css`.
 
-## TODO contenu (cherche `TODO` dans `index.html`)
+---
+
+## TODO contenu
+
+Chercher `TODO` dans `public/index.html` :
 
 - [ ] Liens vidéos des battles (TR·01)
-- [ ] Vraies wildcards : titres, années, liens (TR·02)
-- [ ] Handle Instagram réel (TR·02 + commande `wildcards` dans `js/main.js`)
-- [ ] Email de booking réel (TR·04)
+- [ ] Wildcards réelles : titres, années, liens (TR·02)
+- [ ] Handle Instagram (TR·02 **et** commande `wildcards` dans `main.js`)
+- [ ] Email de booking (TR·04)
 - [ ] Favicon + image Open Graph (`og:image`)
 
-## Déploiement sur le VPS (nginx)
+## Notes techniques
 
-Le site étant statique, il cohabite sans problème avec beatboxgames.com et
-beatboxpredictions.com : un simple `server` block de plus.
-
-```bash
-# Sur le VPS
-sudo mkdir -p /var/www/seizuma.com
-# puis déployer, par ex. :
-git clone <ton-repo> /var/www/seizuma.com
-# ou depuis ta machine : rsync -avz --delete ./ user@vps:/var/www/seizuma.com/
-```
-
-`/etc/nginx/sites-available/seizuma.com` :
-
-```nginx
-server {
-    listen 80;
-    listen [::]:80;
-    server_name seizuma.com www.seizuma.com;
-
-    root /var/www/seizuma.com;
-    index index.html;
-
-    location / {
-        try_files $uri $uri/ =404;
-    }
-
-    # cache long pour les assets, court pour le HTML
-    location ~* \.(css|js)$ {
-        expires 7d;
-        add_header Cache-Control "public";
-    }
-    location = /index.html {
-        add_header Cache-Control "no-cache";
-    }
-}
-```
-
-```bash
-sudo ln -s /etc/nginx/sites-available/seizuma.com /etc/nginx/sites-enabled/
-sudo nginx -t && sudo systemctl reload nginx
-
-# HTTPS (si certbot est déjà installé pour tes autres sites)
-sudo certbot --nginx -d seizuma.com -d www.seizuma.com
-```
-
-N'oublie pas de pointer les DNS de seizuma.com (A / AAAA) vers l'IP du VPS
-avant de lancer certbot.
-
-## Mises à jour
-
-```bash
-cd /var/www/seizuma.com && git pull
-```
-
-Aucun redémarrage nécessaire, nginx sert les nouveaux fichiers directement.
+- **Cache** : `index.html` en `no-cache`, CSS/JS à 1 h. Passer à 30 j quand le
+  site sera stable, avec cache-busting (`style.css?v=2`).
+- **Sons** : entièrement synthétisés en WebAudio, aucun fichier audio à héberger.
+  Le contexte audio ne démarre qu'après une interaction (contrainte navigateur).
+- **Accessibilité** : `prefers-reduced-motion` respecté, focus visibles,
+  waveform en `aria-hidden` (purement décorative).

@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>404 — Piste introuvable · SEIZUMA</title>
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,900&family=Instrument+Sans:wght@400&family=IBM+Plex+Mono:wght@400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/style.css">
+<style>
+  .err{
+    min-height:100vh;display:flex;flex-direction:column;
+    justify-content:center;padding:8vh 5vw;
+  }
+  .err h1{font-size:clamp(80px,20vw,240px)}
+  .err .piste{
+    display:grid;grid-template-columns:80px 1fr 120px;gap:32px;
+    align-items:baseline;margin-top:48px;padding-top:24px;
+    border-top:1px solid var(--ligne);max-width:900px;
+  }
+  .err .piste h2{font-size:clamp(22px,3.5vw,34px);margin:0}
+  .err .piste p{color:var(--sourdine);margin-top:8px;max-width:48ch}
+  .err .retour{
+    display:inline-block;margin-top:44px;font-family:'IBM Plex Mono',monospace;
+    font-size:14px;color:var(--braise);text-decoration:none;
+    border-bottom:1px solid var(--ligne);padding-bottom:4px;
+  }
+  .err .retour:hover{border-color:var(--braise)}
+  #vide{cursor:default;user-select:none}
+  @media(max-width:720px){
+    .err .piste{grid-template-columns:48px 1fr;gap:18px}
+    .err .piste .duree{display:none}
+  }
+</style>
+</head>
+<body>
+
+<section class="err">
+  <div class="surtitre">Erreur 404</div>
+  <h1>404</h1>
+
+  <div class="piste">
+    <div class="no">TR·??</div>
+    <div>
+      <h2>Piste introuvable</h2>
+      <p>Cette page n'existe pas, ou plus. Le disque a sauté.</p>
+    </div>
+    <div class="duree" id="vide">—:—</div>
+  </div>
+
+  <a class="retour" href="/">← retour à la face A</a>
+</section>
+
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+/* 17e secret — hors compteur, réservé à ceux qui se perdent. */
+(() => {
+  const toast = document.getElementById('toast');
+  let n = 0;
+  document.getElementById('vide').addEventListener('click', () => {
+    if (++n < 4) return;
+    n = 0;
+    try { localStorage.setItem('szm_secret_17', '1'); } catch (e) {}
+    toast.textContent = '◆ Secret 17/16 — celui-ci ne compte pas. Comme cette page.';
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 4000);
+  });
+})();
+</script>
+</body>
+</html>

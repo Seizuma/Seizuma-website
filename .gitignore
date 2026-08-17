@@ -1,0 +1,15 @@
+# OS
+.DS_Store
+Thumbs.db
+
+# Éditeurs
+.vscode/
+.idea/
+*.swp
+
+# Logs
+*.log
+
+# Éventuelles surcharges locales de compose
+docker-compose.override.yml
+.env

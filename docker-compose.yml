@@ -4,8 +4,9 @@ services:
     container_name: seizuma-web
     restart: unless-stopped
     volumes:
-      # le repo git cloné, monté en lecture seule
-      - ./site:/usr/share/nginx/html:ro
+      # Seul le dossier public/ est exposé au web.
+      # docker-compose.yml, nginx.conf, deploy.sh et .git restent invisibles.
+      - ./public:/usr/share/nginx/html:ro
       - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
     networks:
       - npm
