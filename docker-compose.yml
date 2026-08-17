@@ -17,4 +17,4 @@ networks:
     external: true
     # ⚠ remplace par le nom réel du réseau de Nginx Proxy Manager
     # (docker network ls) — souvent nginxproxymanager_default ou npm_default
-    name: nginxproxymanager_default
+    name: proxy-network
